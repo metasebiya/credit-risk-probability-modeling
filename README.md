@@ -20,44 +20,110 @@ An End-to-End Implementation for Building, Deploying, and Automating a Credit Ri
 
 ## 🔍 Credit Scoring Business Understanding
 
-As an analytics engineer at at Bati Bank, which is a lending financial provider with over 10 years of experience, we will dive into an End-to-End implementation of a credit scoring model for a specific business scenario. Bati is partnering with an upcoming successful eCommerce company to enable a buy-now-pay-later service - to provide customers with the ability to buy products by credit if they qualify for the service.We will use the data provided to build, deploy and automate a credit score model.Traditionally, creditors build credit scoring models using statistical techniques to analyze various information of previous borrowers in relation to their loan performance. Afterward, the model can be used to evaluate a potential borrower who applies for a loan by providing the similar information which has been used to build the model. The result is either a score which represents the creditworthiness of an applicant or a prediction of whether an applicant will default in the future.
-Before heading into the process, let's explore different topics and financial terms related with the fintech industry. 
-# Financial Terms
-  -  Credit: the provision of loans, lines of credit, or other forms of financing through technology-driven platforms and innovative methods, often outside the traditional banking   system.
-  -  Credit Scoring: the term used to describe the process of assigning a quantitative measure to a potential borrower as an estimate of how likely the default will happen in the future.
-  -  Credit Risk: the potential financial loss a lender or creditor faces if a borrower fails to meet their contractual obligations.
-# Credit Risk Management
-**Credit risk management** is essential for the financial stability of financial service providers. The basel Accords are a set of international banking regulations that aim to ensure the financial stability and soundness of the global banking system.The introduction of the Basel II Capital Accord (Basel Committee on Banking Supervision, 2004) , qualifying financial institutions have been able to derive their own internal credit risk models under the advanced internal ratings based approach (A-IRB) without relying on regulator’s fixed estimates.One of the ways lending organisations could develop their credit risk model is through in-house model development by using machine learning approach to develop models based on past data and using this model to produce a probability that a borrower will repay his loan. This probability, along with the lenders experience can then be used to decide whether the bank should lend to a particular customer.
-The key innovation lies in transforming behavioral data into a predictive risk signal. By analyzing customer Recency, Frequency, and Monetary (RFM) patterns, we engineer a proxy for credit risk. This allows us to train a model that outputs a risk probability score, a vital metric that can be used to inform loan approvals and terms.
-## Basel II requires banks and financial institutions to demonstrate that their internal risk models are:
-  -  Transparent to regulators,
-  -  Validatable through documentation and reproducibility,
-  -  Explainable to risk management committees.
-Therefore, interpretable models (e.g., logistic regression with Weight of Evidence [WoE]) are often favored in credit risk modeling because:
-  -  They allow clear explanations for decisions (e.g., why a customer is classified as high risk),
-  -  They satisfy auditability and compliance standards,
-In real-world banking data, explicit “default” labels are often missing due to:
-  -  Inconsistent reporting,
-  -  Incomplete repayment histories,
-We therefore create a proxy label like:
-  -  ML models need supervision (i.e., labels) to learn meaningful patterns. Without a proxy, we can't train classification models at all.
-### Traditional Statistical Models:
-  **Logistic Regression**: Predicts probability of default (PD) for binary classification.
-    -  Pros: Highly interpretable coefficients, computationally efficient, provides probabilities, regulator-friendly.
-    -  Cons: Assumes linearity, struggles with complex non-linear relationships without extensive feature engineering.
-### Machine Learning Approaches:
-Capable of capturing complex, non-linear relationships for improved accuracy.
-  **Decision Trees**: Partitions data based on rules; each "leaf" is a prediction.
-    Example: "Income > $50k" then "Age > 30" leads to risk classification.
-    -  Pros: Easy to understand (simple trees), handles mixed data, captures non-linearity.
-    -  Cons: Single tree prone to overfitting, typically binary output (not probabilities).
-  **Random Forest**: Ensemble of multiple decision trees; outputs mode/mean of individual trees.
-    -  Pros: High accuracy, handles large datasets/features, robust to outliers/missing data, reduced overfitting.
-    -  Cons: Less interpretable ("black box"), computationally intensive.
-  **Gradient Boosting Machines (GBM)**: Sequentially builds models to correct errors of previous models.
-    -  Pros: Often state-of-the-art accuracy, handles complex non-linear relationships.
-    -  Cons: Highly prone to overfitting if not tuned, less interpretable, computationally demanding.
+As an analytics engineer at **Bati Bank**, a lending financial provider with over 10 years of experience, this project demonstrates an end-to-end implementation of a credit scoring model in a real-world scenario. Bati Bank is partnering with an emerging eCommerce company to enable a Buy-Now-Pay-Later (BNPL) service, offering credit-based purchasing options for customers who meet eligibility criteria.
+
+We use available data to build, validate, deploy, and automate a credit scoring model. Traditionally, credit scoring uses statistical techniques to assess borrower profiles and predict creditworthiness. Once trained, the model is used to evaluate new applicants based on the same features, outputting either a credit score or a binary default prediction.
+
+Before diving into technical implementation, let’s define key financial concepts relevant to the fintech domain:
+
 ---
+
+### 💳 Financial Terms
+
+* **Credit**: The provision of loans or financing through technology-driven platforms.
+* **Credit Scoring**: Assigning a quantitative score to estimate a borrower's likelihood of default.
+* **Credit Risk**: The potential financial loss if a borrower fails to meet their obligations.
+
+---
+
+## 📊 Credit Risk Management
+
+Credit risk management is crucial for maintaining financial stability. Under the **Basel II Capital Accord** (2004), qualifying institutions may use internally developed credit risk models under the Advanced Internal Ratings-Based (A-IRB) approach. This enables banks to:
+
+* Replace regulatory fixed estimates with internally calibrated models.
+* Use past behavioral and transactional data to assess risk.
+
+A key innovation is transforming customer behavior into predictive insights. For instance, analyzing **Recency, Frequency, and Monetary (RFM)** patterns helps construct a **proxy for credit risk**, allowing us to train a supervised model that outputs a risk probability score. This score can be used to make informed credit decisions.
+
+---
+
+## 🌐 Basel II Requirements
+
+To comply with Basel II, internal risk models must be:
+
+* **Transparent** to regulators
+* **Validatable** through documentation and reproducibility
+* **Explainable** to stakeholders and oversight bodies
+
+As a result, **interpretable models** such as logistic regression with Weight of Evidence (WoE) encoding are often preferred. These models:
+
+* Offer clear explanations for individual predictions
+* Support compliance and audit requirements
+
+---
+
+## ❓ Why Use Proxy Variables?
+
+In real-world scenarios, a direct "default" label is often unavailable due to:
+
+* Incomplete or inconsistent reporting
+* Absence of long-term repayment outcomes
+
+We create **proxy targets** based on heuristics such as "90+ days past due within 12 months."
+
+**Benefits**:
+
+* Enables supervised learning
+
+**Risks**:
+
+* **Label noise** may degrade model performance
+* **Proxy misalignment** can lead to biased or invalid business decisions
+* Regulatory scrutiny if justification for proxy is weak
+
+---
+
+## ⚖️ Modeling Approaches
+
+### Traditional Statistical Model
+
+#### ● Logistic Regression
+
+* **Purpose**: Estimates probability of default
+* **Pros**:
+
+  * High interpretability
+  * Easy to deploy and validate
+  * Friendly for regulatory environments
+* **Cons**:
+
+  * Assumes linearity
+  * Limited ability to capture complex interactions
+
+---
+
+### Machine Learning Models
+
+#### ● Decision Trees
+
+* Rule-based classification (e.g., "Income > \$50K" ➔ "Age > 30")
+* **Pros**: Easy to understand, captures non-linearity, handles mixed data types
+* **Cons**: High variance, prone to overfitting
+
+#### ● Random Forest
+
+* Ensemble of decision trees
+* **Pros**: High accuracy, robust to noise, less overfitting
+* **Cons**: Harder to interpret, resource-intensive
+
+#### ● Gradient Boosting Machines (GBM)
+
+* Sequentially improves weak learners
+* **Pros**: Often best-in-class performance
+* **Cons**: High risk of overfitting, requires careful tuning, less interpretable
+
+---
+
 
 ## 🔍 Project Overview
 
