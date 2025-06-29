@@ -1,5 +1,5 @@
 """
-data_processing.py - EDA   functions for credit risk probability modeling
+data_eda.py - EDA   functions for credit risk probability modeling
 
 This module contains functions to eda performing functions for credit risk probability modeling
 
