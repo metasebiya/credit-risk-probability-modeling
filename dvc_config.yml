@@ -1,0 +1,13 @@
+stages:
+  preprocess:
+    cmd: python src/preprocess_and_label.py
+    deps:
+      - src/preprocess_and_label.py
+      - src/data_processing.py
+      - src/target_engineering.py
+      - data/raw/data.csv
+    outs:
+      - data/processed/X.csv
+      - data/processed/y.csv
+    metrics:
+      - models/feature_pipeline.pkl
