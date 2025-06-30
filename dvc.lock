@@ -1,0 +1,17 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python src/target_and_label.py
+    deps:
+    - path: models/feature_pipeline.pkl
+      hash: md5
+      md5: 425906249afec67ba6b54f7ac36e0532
+      size: 3836
+    - path: src/data_processing.py
+      hash: md5
+      md5: 82715323c7c7b3e67ed91b22db110110
+      size: 3082
+    - path: src/proxy_target_engineer.py
+      hash: md5
+      md5: f09e22b1ac4a1ed232e1b769bba1403a
+      size: 2330
