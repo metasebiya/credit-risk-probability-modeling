@@ -1,0 +1,7 @@
+stages:
+  preprocess:
+    cmd: python src/target_and_label.py
+    deps:
+      - src/data_processing.py
+      - src/proxy_target_engineer.py
+      - models/feature_pipeline.pkl

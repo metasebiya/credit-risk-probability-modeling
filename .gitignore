@@ -4,7 +4,10 @@ __pycache__/
 *$py.class
 
 #data
-data/
+data/raw/data.csv
+data/processed/data_labeled.csv
+data/processed/data_targeted.csv
+
 !*.dvc
 
 # Virtual environment
