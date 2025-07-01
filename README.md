@@ -215,27 +215,17 @@ pytest tests/
 Models evaluated:
 
 - Random Forest
-- XGBoost
 - Logistic Regression
-- [Other models]
+- Gradient Boosting
 
 Best model:
 
-- **Random Forest**
-- Accuracy: 92%
+- **Gradient Boosting**
+- Accuracy: 0.97
 - F1 Score: 0.89
 - ROC AUC: 0.94
 
 ---
-
-## 📈 Results
-
-| Model               | Accuracy | F1 Score | Notes            |
-| ------------------- | -------- | -------- | ---------------- |
-| Logistic Regression | 0.85     | 0.84     | Baseline         |
-| XGBoost             | 0.91     | 0.88     | Slight overfit   |
-| Random Forest       | **0.92** | **0.89** | Selected model ✅ |
-
 ---
 
 ## 🌐 API (Optional)
