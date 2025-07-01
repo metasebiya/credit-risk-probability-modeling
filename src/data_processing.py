@@ -9,7 +9,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 # --- 1. Custom Transformer for Feature Engineering ---
 class TransactionFeatureGenerator(BaseEstimator, TransformerMixin):
-    def __init__(self, timestamp_col='TransactionStartTime', amount_col='Amount', customer_id_col='CustomerId'):
+    def __init__(self, timestamp_col='last_transaction', amount_col='amount', customer_id_col='CustomerId'):
         self.timestamp_col = timestamp_col
         self.amount_col = amount_col
         self.customer_id_col = customer_id_col
@@ -33,8 +33,8 @@ class TransactionFeatureGenerator(BaseEstimator, TransformerMixin):
             total_amount=(self.amount_col, 'sum'),
             avg_amount=(self.amount_col, 'mean'),
             std_amount=(self.amount_col, 'std'),
-            first_transaction=('TransactionStartTime', 'min'),
-            last_transaction=('TransactionStartTime', 'max')
+            first_transaction=(self.timestamp_col, 'min'),
+            last_transaction=(self.timestamp_col, 'max')
         ).fillna(0).reset_index()
 
         # Merge back extracted features
@@ -68,7 +68,7 @@ def build_preprocessing_pipeline(numeric_features, categorical_features):
 
 # --- 3. Combine Feature Generation + Preprocessing ---
 def build_full_pipeline(numeric_features, categorical_features,
-                        timestamp_col='TransactionStartTime', amount_col='Amount', customer_id_col='CustomerId'):
+                        timestamp_col='last_transaction', amount_col='total_amount', customer_id_col='CustomerId'):
     return Pipeline([
         ('feature_engineering', TransactionFeatureGenerator(
             timestamp_col=timestamp_col,
