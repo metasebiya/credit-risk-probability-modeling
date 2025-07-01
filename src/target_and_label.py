@@ -16,15 +16,18 @@ rfm_labeled = proxy.engineer_target(df_raw)
 df_labeled = proxy.merge_with_main(df_raw, rfm_labeled)
 
 # --- Step 2: Define target and raw features ---
-y = df_labeled['is_high_risk']
+y = df_labeled[["CustomerId", "is_high_risk"]]
 X_raw = df_labeled.copy()
+
+df_labeled.to_csv("data/processed/data_full_labeled.csv", index=False)
+
 
 # --- Step 3: Transform features ---
 pipeline = build_full_pipeline(
     numeric_features=['transaction_count', 'total_amount', 'avg_amount', 'std_amount'],
     categorical_features=['month', 'hour'],
-    timestamp_col='TransactionStartTime',
-    amount_col='Amount',
+    timestamp_col='last_transaction',
+    amount_col='total_amount',
     customer_id_col='CustomerId'
 )
 X = pipeline.fit_transform(X_raw)
