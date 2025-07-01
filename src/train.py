@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.metrics import classification_report, roc_auc_score, accuracy_score
+from mlflow.tracking import MlflowClient
 
 
 class ModelTrainer:
@@ -19,24 +20,69 @@ class ModelTrainer:
 
     def train_models(self, X_train, X_test, y_train, y_test):
         models = {
-            "Logistic Regression": LogisticRegression(max_iter=1000),
-            "Random Forest": RandomForestClassifier(),
-            "Gradient Boosting": GradientBoostingClassifier()
+            "Logistic_Regression": (
+                LogisticRegression(max_iter=1000),
+                {'C': [0.1, 1.0, 10.0]}
+            ),
+            "Random_Forest": (
+                RandomForestClassifier(),
+                {'n_estimators': [100, 200], 'max_depth': [5, 10]}
+            ),
+            "Gradient_Boosting": (
+                GradientBoostingClassifier(),
+                {'learning_rate': [0.01, 0.1], 'n_estimators': [100, 200]}
+            )
         }
-
-        for name, model in models.items():
-            print(f"\n📊 Training: {name}")
-            model.fit(X_train, y_train)
-            preds = model.predict(X_test)
-            proba = model.predict_proba(X_test)[:, 1]
+        results = []
+        for name, (model, param_grid) in models.items():
+            print(f"\n📊 Tuning and Training: {name}")
+            best_model = self.tune_model(model, param_grid, X_train, y_train)
+            print(best_model)
+            preds = best_model.predict(X_test)
+            proba = best_model.predict_proba(X_test)[:, 1]
 
             print(classification_report(y_test, preds))
             print("ROC-AUC:", roc_auc_score(y_test, proba))
+            roc_auc = roc_auc_score(y_test, proba)
+            acc = accuracy_score(y_test, preds)
 
-            with mlflow.start_run(run_name=name):
-                mlflow.log_metric("roc_auc", roc_auc_score(y_test, proba))
-                mlflow.log_metric("accuracy", accuracy_score(y_test, preds))
-                mlflow.sklearn.log_model(model, "model", registered_model_name=name.replace(" ", "_"))
+        results.append({
+            "name": name,
+            "model": model,
+            "roc_auc": roc_auc,
+            "accuracy": acc
+        })
+
+        print(f"{name} - ROC AUC: {roc_auc:.4f}, Accuracy: {acc:.4f}")
+        # Choose best by ROC AUC
+        best = max(results, key=lambda x: x["roc_auc"])  # or use x["accuracy"] instead
+
+        print(f"\n🏆 Best Model: {best['name']}")
+        print(f"ROC AUC: {best['roc_auc']:.4f}, Accuracy: {best['accuracy']:.4f}")
+
+        with mlflow.start_run(run_name=best["name"]):
+            mlflow.log_params(best["model"].get_params())
+            mlflow.log_metric("roc_auc", best["roc_auc"])
+            mlflow.log_metric("accuracy", best["accuracy"])
+
+            mlflow.sklearn.log_model(
+                sk_model=best["model"],
+                artifact_path="model",
+                registered_model_name=best["name"].replace(" ", "_")
+            )
+            # Automatically promote best model to Production
+            client = MlflowClient()
+            latest_version = client.get_latest_versions(best["name"].replace(" ", "_"), stages=["None"])[0].version
+
+            client.transition_model_version_stage(
+                name=best["name"].replace(" ", "_"),
+                version=latest_version,
+                stage="Production",
+                archive_existing_versions=True
+            )
+            print(f"✅ Model {best['name']} version {latest_version} promoted to Production.")
+
+        pd.DataFrame(results).to_csv("../data/metrics/model_scores.csv", index=False)
 
     def tune_model(self, model, param_grid, X_train, y_train):
         grid = GridSearchCV(model, param_grid, scoring='f1', cv=5)
