@@ -52,4 +52,14 @@ class ProxyTargetEngineer:
         return labeled
 
     def merge_with_main(self, df_main, df_rfm_labeled):
-        return pd.merge(df_main, df_rfm_labeled[[self.customer_id_col, 'is_high_risk']], on=self.customer_id_col, how='left')
+        df_main_grouped = df_main.groupby(self.customer_id_col).agg({
+            self.amount_col: ['sum', 'mean', 'count', 'std'],
+            self.timestamp_col: 'max'
+        }).reset_index()
+
+        df_main_grouped.columns = [
+            self.customer_id_col, 'total_amount', 'avg_amount', 'transaction_count', 'std_amount', 'last_transaction'
+        ]
+
+        return pd.merge(df_main_grouped, df_rfm_labeled[[self.customer_id_col, 'is_high_risk']],
+                        on=self.customer_id_col, how='left')
